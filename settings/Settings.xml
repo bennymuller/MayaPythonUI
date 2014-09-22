@@ -1,0 +1,117 @@
+<Settings>
+	<Setting file="1 Lod w weights.ini" name="1 Mesh LOD">
+		<Section description="LOD Settings"> 
+			<Key name="ReductionRatio" section="Root/LODCollectionSection/LOD0Section" type="IntRange" description="Percentage reduction" min="25" max="75"/> 
+		</Section> 
+		<Section description="Feature preservation"> 
+			<Key name="GeometricImportance" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection/FeaturePreservationSection" type="Droplist" description="Silhouetto"> 
+				<Choice value="Highest"/>
+				<Choice value="High"/>
+				<Choice value="Normal"/>
+				<Choice value="Low"/>
+				<Choice value="Lowest"/>
+				<Choice value="Off"/>
+			</Key>
+			<Key name="MaterialImportance" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection/FeaturePreservationSection" type="Droplist" description="Material"> 
+				<Choice value="Highest"/>
+				<Choice value="High"/>
+				<Choice value="Normal"/>
+				<Choice value="Low"/>
+				<Choice value="Lowest"/>
+				<Choice value="Off"/>
+			</Key>
+		</Section> 
+		<Section description="Reduction Quality"> 
+			<Key name="AllowVertexRepositioning" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection" type="Checkbox" description="Reposition vertices"/> 
+		</Section> 
+	</Setting>
+	<Setting file="Character 3 LODs.ini" name="Character 3 LODs">
+		<Section description="LOD 0"> 
+			<Key name="ReductionRatio" section="Root/LODCollectionSection/LOD0Section" type="IntRange" description="Polycount reduction" min="30" max="60"/> 
+			<Key name="AllowVertexRepositioning" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection" type="Checkbox" description="Reposition vertices"/> 
+			<Section description="Feature preservation"> 
+				<Key name="GeometricImportance" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection/FeaturePreservationSection" type="Droplist" description="Silhouetto"> 
+					<Choice value="Highest"/>
+					<Choice value="High"/>
+					<Choice value="Normal"/>
+				</Key>
+				<Key name="SkinningImportance" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection/FeaturePreservationSection" type="Droplist" description="Skinning"> 
+					<Choice value="Highest"/>
+					<Choice value="High"/>
+					<Choice value="Normal"/>
+				</Key>
+			</Section> 
+		</Section> 
+		<Section description="LOD 1"> 
+			<Key name="ReductionRatio" section="Root/LODCollectionSection/LOD1Section" type="IntRange" description="Polycount reduction" min="30" max="60"/> 
+			<Key name="ReductionRatio" section="Root/LODCollectionSection/LOD1Section/BoneReductionSection" type="IntRange" description="Bone reduction" min="30" max="60"/> 
+			<Key name="AllowVertexRepositioning" section="Root/LODCollectionSection/LOD1Section/MeshReductionQualitySection" type="Checkbox" description="Reposition vertices"/> 
+			<Section description="Feature preservation"> 
+				<Key name="GeometricImportance" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection/FeaturePreservationSection" type="Droplist" description="Silhouetto"> 
+					<Choice value="Highest"/>
+					<Choice value="High"/>
+					<Choice value="Normal"/>
+				</Key>
+				<Key name="SkinningImportance" section="Root/LODCollectionSection/LOD0Section/MeshReductionQualitySection/FeaturePreservationSection" type="Droplist" description="Skinning"> 
+					<Choice value="Highest"/>
+					<Choice value="High"/>
+					<Choice value="Normal"/>
+				</Key>
+			</Section> 
+			<Section description="Texture Size"> 
+				<Key name="TexXSize" section="Root/LODCollectionSection/LOD1Section/ReductionMappingSection" type="Droplist" description="Texture Width"> 
+					<Choice value="512"/>
+					<Choice value="1024"/>
+				</Key>
+				<Key name="TexYSize" section="Root/LODCollectionSection/LOD1Section/ReductionMappingSection" type="Droplist" description="Texture Height"> 
+					<Choice value="512"/>
+					<Choice value="1024"/>
+				</Key>
+			</Section> 
+		</Section> 
+		<Section description="LOD 2"> 
+			<Key name="ReductionRatio" section="Root/LODCollectionSection/LOD2Section" type="IntRange" description="Polycount reduction" min="30" max="60"/> 
+			<Key name="ReductionRatio" section="Root/LODCollectionSection/LOD2Section/BoneReductionSection" type="IntRange" description="Bone reduction" min="30" max="60"/> 
+		</Section> 
+	</Setting>
+	<Setting file="AggregateLod.ini" name="AggregateLod">
+		<Section description="Texture size"> 
+			<Key name="TexXSize" section="Root/LODCollectionSection/LOD0Section/ReductionMappingSection" type="Droplist" description="Width"> 
+				<Choice value="256"/>
+				<Choice value="512"/>
+				<Choice value="1024"/>
+				<Choice value="2048"/>
+			</Key>
+			<Key name="TexYSize" section="Root/LODCollectionSection/LOD0Section/ReductionMappingSection" type="Droplist" description="Height"> 
+				<Choice value="256"/>
+				<Choice value="512"/>
+				<Choice value="1024"/>
+				<Choice value="2048"/>
+			</Key>
+		</Section> 
+		<Section description="Sampling quality vs speed"> 
+			<Key name="Supersampling" section="Root/LODCollectionSection/LOD0Section/ReductionMappingSection" type="Droplist" description="Sampling quality"> 
+				<Choice value="High" description="Production setting"/>
+				<Choice value="Medium"/>
+				<Choice value="Low"/>
+				<Choice value="Poor" description="Quick and Dirty"/>
+			</Key>
+		</Section> 
+	</Setting>
+
+	<Setting file="500px Background Geometry.ini" name="500px Background Geometry">
+		<Section description="Texture size"> 
+			<Key name="TexXSize" section="Root/LODCollectionSection/LOD0Section/ReductionMappingSection" type="Droplist" description="Width"> 
+				<Choice value="1024"/>
+				<Choice value="2048"/>
+			</Key>
+			<Key name="TexYSize" section="Root/LODCollectionSection/LOD0Section/ReductionMappingSection" type="Droplist" description="Height"> 
+				<Choice value="1024"/>
+				<Choice value="2048"/>
+			</Key>
+		</Section> 
+		<Section description="Clipping plane"> 
+			<Key name="IsEnabled" section="Root/LODCollectionSection/LOD0Section/GroundPlaneSection" type="Checkbox" description="Use ground clipping"/> 
+		</Section> 
+	</Setting>
+</Settings>
