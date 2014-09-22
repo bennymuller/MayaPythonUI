@@ -9,7 +9,7 @@ Ideally the settings are then distributed to a versioning system, which allows a
 
 ## Install instructions
 - Install the Simplygon Maya plugin, following the instructions in Simplygon_Maya_Plugin.pdf in the Simplygon installation folder.
-- Copy the files from the scripts folder into a the python script folder. Typically, this is located in Documents\maya\scripts. If you want to run the script straight from the repository you will have to add the following to lines to the maya shelf command:
+- Copy the files from the scripts folder into a the python script folder. Typically, this is located in Documents\maya\scripts. If you want to run the script straight from the repository you will have to add the following to lines to the maya shelf command (that you will create in the next step):
 ```
 import sys
 sys.path.append( '<your github location>/MayaPythonUI/scripts/' )
@@ -20,6 +20,18 @@ import SimplygonBatchProcessor
 reload (SimplygonBatchProcessor) """if you want to further develop the plugin, this is good to have to recompile the code"""
 SimplygonBatchProcessor.openSimplygonBatchProcessor()
 ```
+- To create shelf command in Maya, you first need to open the shelf editor:
+
+![Alt text](images/shelfeditor.png?raw=true "Shelf editor")
+
+- Create a new script by clicking the marked button and name the script:
+
+![Alt text](images/addscript.png?raw=true "Add script")
+
+- With the newly created script selected, go to the command tab, set it to python mode and paste the code from above:
+
+![Alt text](images/createscript.png?raw=true "Create script")
+
 - Start the shelf command. A docked tab called *Batch Processor* should now be located where the attribute editor is.
 - Browse to the xml file located in the setting folder in the top component to test that everything works.
 
