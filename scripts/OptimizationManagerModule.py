@@ -38,7 +38,7 @@ class SectionData:
 		font = "boldLabelFont"
 		if self.indentLevel >= 1:
 			font = "tinyBoldLabelFont"
-		layout = cmds.frameLayout(parent= parentContainer, l=self.description, collapsable=True, li=self.indentLevel*10, font=font)
+		layout = cmds.frameLayout(parent= parentContainer, l=self.description, collapsable=True, collapse=True, li=self.indentLevel*10, font=font)
 		for child in self.children:
 			#Add some air between the keys
 			if not isinstance(child, SectionData):
@@ -73,29 +73,33 @@ class SectionData:
  Data container class that keeps track of the setting files and the exposed sections.
 """		
 class SettingData:
-	def __init__(self, xmlElement, basePath):
-		self.file = xmlElement.get("file")
-		self.name = xmlElement.get("name")
-		if not os.path.isabs(self.file):
-			self.file = basePath+"/"+self.file
-		if not os.path.isfile(self.file):
-			print "Warning: The file "+self.file+" referenced in "+self.name+" could not be found."
-		print self.file
-		self.sections = []
+	def __init__(self, xmlElement, basePath, id):
+		self._file = xmlElement.get("file")
+		self._name = xmlElement.get("name")
+		self._id = id
+		if not os.path.isabs(self._file):
+			self._file = basePath+"/"+self._file
+		if not os.path.isfile(self._file):
+			print "Warning: The file "+self._file+" referenced in "+self.name+" could not be found."
+		self._sections = []
 		for section in xmlElement.findall('Section'):
-			self.sections.append(SectionData(section,0))
+			self._sections.append(SectionData(section,0))
+			
+	@property
+	def id(self):
+		return self._id
 
-	"""
-	@return: the file attribute of this setting data
-	"""		
-	def getSettingsFile(self):
-		return self.file
+	@property
+	def settingsFile(self):
+		return self._file
 
-	"""
-	@return: a list of all sections in this setting data
-	"""		
-	def getSections(self):
-		return self.sections;
+	@property
+	def sections(self):
+		return self._sections
+
+	@property
+	def name(self):
+		return self._name
 		
 		
 """
@@ -105,44 +109,34 @@ class OptimizationSettingsManager:
 	def __init__(self, xmlFile):
 		tree = etree.parse(xmlFile)
 		root = tree.getroot()
-		self.settingDatas = {}
+		self.settingDatas = []
 		self.currentContainer = None
 		self.currentConfig = None
-		self.currentSetting = ""
+		self.currentSetting = None
 		basePath = os.path.dirname(xmlFile).replace("\\", "/")
+		settingID = 0
 		for settingData in root.findall('Setting'):
-			if settingData.get("name") in self.settingDatas:
-				print "Warning! The setting data "+settingData.get("name")+" is declared several times. Have you been sloppy-pasting?"
-			self.settingDatas[settingData.get("name")] = SettingData(settingData, basePath)
+			self.settingDatas.append(SettingData(settingData, basePath,settingID))
+			settingID+=1
 
 	"""
-	@return: a list of the names of all the available settings files
+	@return: the list of setting datas of all the available settings files
 	"""			
-	def getSettingNames(self): 
-		settingNames = []
-		for key in self.settingDatas:
-			settingNames.append(key)
-		return settingNames
+	def getSettings(self): 
+		return self.settingDatas
 		
 	"""
-	@return: the setting data of the setting matching the input name
+	@return: the setting data of the setting matching the input ID
 	"""	
-	def getSettingsFile(self, settingsName):
-		return self.settingDatas[settingsName].getSettingsFile()
-
-	"""
-	@return: the the list of sections from the setting data matching the name
-	"""	
-	def getSections(self, settingName):
-		return self.settingDatas[settingName].getSections()
+	def getSetting(self, settingID):
+		return self.settingDatas[settingID]
 		
 	"""
 	Enables/disables all the components in the optimization panel
 	@param enabled: true if the component should be enables
 	"""
 	def enable(self, enabled):
-		sections = self.getSections(self.currentSetting)
-		for section in sections:
+		for section in self.currentSetting.sections:
 			section.enable(enabled)		
 			
 	"""
@@ -151,26 +145,31 @@ class OptimizationSettingsManager:
 	Creates the components for the exposed keys and adds them to the container.
 	Sets default values for the keys.
 	@param container: the container to place all UI elements in.
-	@param selectedSettingName: the name of the newly selected setting.
+	@param selectedSettingID: the id of the newly selected setting.
 	"""
-	def settingChanged(self, container, selectedSettingName):
+	def settingChanged(self, container, selectedSettingID):
+		settingData = self.getSetting(selectedSettingID)
 		# Load the configuration file
-		self.currentConfig = self.loadConfigurationFile(self.getSettingsFile(selectedSettingName))
-
-		#Clear the current interface
-		if self.currentContainer != None:
-			cmds.deleteUI(self.currentContainer)
-	
+		self.currentConfig = self.loadConfigurationFile(settingData.settingsFile)
+		self.clear()
 		# Create the components that are exposed through the xml
-		self.currentSetting = selectedSettingName
+		self.currentSetting = settingData
 		self.currentContainer = cmds.columnLayout (parent= container, adjustableColumn = True)
-		if selectedSettingName != None:
-			sections = self.getSections(selectedSettingName)
+		if selectedSettingID != None:
+			sections = settingData.sections
 			for section in sections:
 				section.createComponent(self.currentContainer)
 		
 		self.setDefaultValues()
-	
+
+	"""
+	Removes all UI components from the interfaces
+	"""
+	def clear(self):
+		#Clear the current interface
+		if self.currentContainer != None:
+			cmds.deleteUI(self.currentContainer)
+		
 	"""
 	Loads the .ini file
 	@param configFile: the .ini file to load
@@ -188,8 +187,7 @@ class OptimizationSettingsManager:
 	"""
 	def writeTempConfig(self, outFile):
 		#Before we write the file we must transfer the user specified values to the config.
-		sections = self.getSections(self.currentSetting)
-		for section in sections:
+		for section in self.currentSetting.sections:
 			keys = section.getKeys()
 			for key in keys:
 				name = key.getKeyName()				
@@ -198,15 +196,14 @@ class OptimizationSettingsManager:
 					value = key.getValue()
 					self.currentConfig.set(section, name,value)
 				else:
-					print "Warning! The key: "+section+"/"+name+" does not exist in the config file! Check the xml description for the settings file: "+self.currentSetting 		
+					print "Warning! The key: "+section+"/"+name+" does not exist in the config file! Check the xml description for the settings file: "+self.currentSetting.name		
 		self.currentConfig.write(outFile)
 		
 	"""
 	Loops through all the keys in the current setting and sets the default values from the loaded config.
 	"""
 	def setDefaultValues(self):
-		sections = self.getSections(self.currentSetting)
-		for section in sections:
+		for section in self.currentSetting.sections:
 			keys = section.getKeys()
 			for key in keys:
 				name = key.getKeyName()				
@@ -215,4 +212,4 @@ class OptimizationSettingsManager:
 					value = self.currentConfig.get(section, name)
 					key.setValue(value)
 				else:
-					print "Warning! The key: "+section+"/"+name+" does not exist in the config file! Check the xml description for the settings file: "+self.currentSetting 
+					print "Warning! The key: "+section+"/"+name+" does not exist in the config file! Check the xml description for the settings file: "+self.currentSetting.settingName 

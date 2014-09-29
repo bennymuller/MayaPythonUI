@@ -58,7 +58,8 @@
 					<Choice value="Normal"/>
 				</Key>
 			</Section> 
-			<Section description="Texture Size"> 
+			<Section description="Texture Size">
+				<Key name="IsEnabled" section="Root/LODCollectionSection/LOD1Section/ReductionMappingSection" type="Checkbox" description="Combine materials"/> 			
 				<Key name="TexXSize" section="Root/LODCollectionSection/LOD1Section/ReductionMappingSection" type="Droplist" description="Texture Width"> 
 					<Choice value="512"/>
 					<Choice value="1024"/>
