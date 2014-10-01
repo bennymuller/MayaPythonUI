@@ -65,6 +65,7 @@ class SimplygonJob:
 		self._textureManager = None
 		self._materialManager = None
 		self._objectManager = None
+		
 	@property
 	def time(self):
 		return self._time
@@ -107,6 +108,10 @@ class SimplygonJob:
 		print "----"+texture+"----"
 		print sgInfo
 		
+
+	def getLODs(self):
+		return self._objectManager.getLODs()
+
 		
 	def makeLayers(self):
 		lods = self._objectManager.getLODs()
@@ -129,7 +134,15 @@ class SimplygonJob:
 
 	def setPrefix(self, prefix):
 		pass
-
+		
+	def removeInvalidAssets(self):
+		self._objectManager.removeInvalidAssets()
+		self._textureManager.removeInvalidAssets()
+		self._materialManager.removeInvalidAssets()
+		
+	def isEmpty(self):	
+		return False
+		
 	@property	
 	def succesful(self):
 		return self._succesful		

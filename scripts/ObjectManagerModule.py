@@ -50,6 +50,28 @@ class ShapeData:
 				cmds.disconnectAttr(mc.materialData.name+"."+mc.materialAttribute, mc.shadingEngine+"."+mc.shadingEngineAttribute) 		
 				cmds.connectAttr(newMaterial.name+"."+mc.materialAttribute, mc.shadingEngine+"."+mc.shadingEngineAttribute, f=True)
 
+	@property
+	def materialNames(self):
+		materialNames = []
+		for mc in self._materialConnections:
+			materialNames.append(mc.materialData.name)
+		return materialNames
+		
+	@property
+	def textureNames(self):
+		textureNames = []
+		for mc in self._materialConnections:
+			textureNames.extend(mc.materialData.textureNames)
+		return textureNames		
+
+	def removeInvalidConnections(self):
+		toRemove = []
+		for mc in self._materialConnections:
+			if not cmds.objExists(mc.materialData.name):
+				toRemove.append(mc)
+		for mc in toRemove:			
+			self._materialConnections.remove(mc)			
+				
 LOD_KEYWORD = '_LOD'		
 class ObjectData:
 	def __init__(self, objectName, materialManager):
@@ -77,6 +99,24 @@ class ObjectData:
 	def name(self):
 		return self._objectName
 		
+	@property
+	def materialNames(self):
+		materialNames = []
+		for s in self._shapes:
+			materialNames.extend(s.materialNames)
+		return materialNames
+		
+	@property
+	def textureNames(self):
+		textureNames = []
+		for s in self._shapes:
+			textureNames.extend(s.textureNames)
+		return textureNames	
+
+	def removeInvalidConnections(self):
+		for s in self._shapes:
+			s.removeInvalidConnections()
+
 class LODData:
 	def __init__(self,index):
 		self._objectData = []
@@ -92,6 +132,20 @@ class LODData:
 			objectNames.append(o.name)
 		return objectNames
 
+	@property
+	def materialNames(self):
+		materialNames = []
+		for o in self._objectData:
+			materialNames.extend(o.materialNames)
+		return materialNames
+		
+	@property
+	def textureNames(self):
+		textureNames = []
+		for o in self._objectData:
+			textureNames.extend(o.textureNames)
+		return textureNames
+		
 	def splitOut(self):
 		objs = self.objectNames
 		bbox = cmds.exactWorldBoundingBox(objs)
@@ -144,3 +198,17 @@ class ObjectManager:
 			
 	def getLODs(self):
 		return self._LODs
+		
+	def removeInvalidAssets(self):
+		toRemove = []
+		for od in self._objectData:
+			if not cmds.objExists(od.name):
+				toRemove.append(od)
+				print "REmoving: "+od
+			else:
+				od.removeInvalidConnections()
+		for od in toRemove:			
+			self._objectData.remove(od)	
+		# We need to rebuild the LOD data
+		self.buildLods()
+	

@@ -94,6 +94,13 @@ class MaterialData:
 	def texturesConnections(self):
 		return self._textureConnections
 		
+	@property
+	def textureNames(self):
+		textureNames = []
+		for tc in self._textureConnections:
+			textureNames.append(tc.texture.name)
+		return textureNames		
+		
 	def isEqual(self, material2):
 		for t1 in self.texturesConnections:
 			exists = False
@@ -114,6 +121,14 @@ class MaterialData:
 	def reconnectTextures(self, textureManager):
 		for tc in self._textureConnections:
 			tc.reconnectTexture(textureManager)
+			
+	def removeInvalidConnections(self):
+		toRemove = []
+		for tc in self._textureConnections:
+			if not cmds.objExists(tc.texture.name):
+				toRemove.append(tc)
+		for tc in toRemove:			
+			self._textureConnections.remove(tc)	
 
 class MaterialManager:
 	def __init__(self):
@@ -133,7 +148,10 @@ class MaterialManager:
 		for m in materialsNow:
 			if m not in self.materials:
 				self._materialData.append(MaterialData(m, self._textureManager))
-				
+		self.calculateDuplicates()
+	
+	def calculateDuplicates(self):	
+		self._duplicates = []
 		for md in self._materialData:
 			added = False
 			for l in self._duplicates:
@@ -169,3 +187,16 @@ class MaterialManager:
 				cmds.delete(l[i].name)
 				self._materialData.remove(l[i])
 		self._duplicates = []
+		
+	def removeInvalidAssets(self):
+		toRemove = []
+		for md in self._materialData:
+			if not cmds.objExists(md.name):
+				toRemove.append(md)
+			else:
+				md.removeInvalidConnections()
+		for md in toRemove:			
+			self._materialData.remove(md)
+
+		# We need to update the list of duplicates
+		self.calculateDuplicates()

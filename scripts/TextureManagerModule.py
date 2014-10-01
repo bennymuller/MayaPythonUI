@@ -54,7 +54,10 @@ class TextureManager:
 		for t in texturesNow:
 			if t not in self._textures:
 				self._textureData.append(TextureData(t))
+		self.calculateDuplicates()
 
+	def calculateDuplicates(self):
+		self._duplicates = {}
 		#Group all textures by their hash value to sort out duplications
 		for td in self._textureData:
 			if(td.hash not in self._duplicates):
@@ -91,3 +94,13 @@ class TextureManager:
 				self._textureData.remove(td)
 		self._duplicates = {}
 
+	def removeInvalidAssets(self):
+		toRemove = []
+		for td in self._textureData:
+			if not cmds.objExists(td.name):
+				toRemove.append(td)
+		for td in toRemove:			
+			self._textureData.remove(td)
+
+		# We need to update the list of duplicates
+		self.calculateDuplicates()

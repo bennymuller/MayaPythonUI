@@ -1,5 +1,8 @@
 import maya.cmds as cmds
 import inspect, os
+import ManageOutputWindowModule
+reload(ManageOutputWindowModule)
+from ManageOutputWindowModule import *
 import OptimizationManagerModule
 reload(OptimizationManagerModule)
 from OptimizationManagerModule import *
@@ -280,50 +283,25 @@ class BrowsingPanel:
 class JobPanel:
 	def __init__(self, batchProcessor):
 		self._batchProcessor = batchProcessor
-		self._jobList = None
 		self._jobs = []
-		
-		
+				
 	def createPanel(self, parentContainer):
 		layout = cmds.frameLayout(parent= parentContainer, l="Jobs", collapsable=False)
-		self._jobList = cmds.optionMenu(parent= layout)
-		cmds.button(parent= layout, label = "Clean job", command = self.onCleanJob)	
-		cmds.button(parent= layout, label = "Split LODs", command = self.onSplit)	
-		cmds.button(parent= layout, label = "Make Layers", command = self.onLayers)	
-
-	def getSelectedJob(self):
-		selectedItemIndex = cmds.optionMenu(self._jobList, query=True, select=True)-1
-		menuItems = cmds.optionMenu(self._jobList, q=True, itemListLong=True)
-		selectedJobIndex = 0
-		if menuItems != None and (menuItems != [] or len(menuItems) < selectedItemIndex):
-			selectedJobIndex = cmds.menuItem(menuItems[selectedItemIndex], query=True, data=True)
-		else:
-			return None
-		return self._jobs[selectedJobIndex]
+		cmds.button(parent= layout, label = "Manage Output", command = self.onManageOutput)	
+	
+	def addJob(self, job):
+		self._jobs.append(job)
 		
-	def onCleanJob(self, _):
-		job = self.getSelectedJob()
-		job.pruneTexturesAndMaterials()
-
-	def onSplit(self, _):
-		job = self.getSelectedJob()
-		job.splitLODs()
-
-	def onLayers(self, _):
-		job = self.getSelectedJob()
-		job.makeLayers()
-
+	def onManageOutput(self, job):
+		window = ManageOutputWindow(self._jobs)
+		window.showWindow()
+		
 	"""
 	Enable/disable the controls in the window
 	@param enabled: true if the controls should be enabled.
 	"""	
 	def enable(self, enabled):
 		pass
-
-	def addJob(self, job):
-		jobIndex = len(self._jobs)
-		self._jobs.append(job)
-		cmds.menuItem(parent=self._jobList, label=job.name, data=jobIndex)
 
 		
 """
