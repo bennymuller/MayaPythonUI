@@ -129,8 +129,8 @@ class SimplygonJob:
 	def splitLODs(self):
 		self._objectManager.splitLODs()
 	
-	def moveTextures(self, destinationFolder):
-		pass
+	def moveTextures(self, directory):
+		self._textureManager.moveTextures(directory)
 
 	def setPrefix(self, prefix):
 		pass

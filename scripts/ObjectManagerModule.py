@@ -29,6 +29,12 @@ class ShadingEngineMaterialConnection:
 	def shadingEngine(self):
 		return self._shadingEngine
 
+	def reconnectShape(self, materialManager):
+		newMaterial = materialManager.redirectTo(self.materialData)
+		if newMaterial:
+			cmds.disconnectAttr(self.materialData.name+"."+self.materialAttribute, self.shadingEngine+"."+self.shadingEngineAttribute) 		
+			cmds.connectAttr(newMaterial.name+"."+self.materialAttribute, self.shadingEngine+"."+self.shadingEngineAttribute, f=True)
+			self._materialData = newMaterial
 SURFACESHADERATTR = 'surfaceShader'
 class ShapeData:
 	def __init__(self, shapeName, materialManager):
@@ -45,11 +51,7 @@ class ShapeData:
 	
 	def reconnectShape(self, materialManager):
 		for mc in self._materialConnections:
-			newMaterial = materialManager.redirectTo(mc.materialData)
-			if newMaterial:
-				cmds.disconnectAttr(mc.materialData.name+"."+mc.materialAttribute, mc.shadingEngine+"."+mc.shadingEngineAttribute) 		
-				cmds.connectAttr(newMaterial.name+"."+mc.materialAttribute, mc.shadingEngine+"."+mc.shadingEngineAttribute, f=True)
-
+			mc.reconnectShape(materialManager)			
 	@property
 	def materialNames(self):
 		materialNames = []
@@ -204,7 +206,6 @@ class ObjectManager:
 		for od in self._objectData:
 			if not cmds.objExists(od.name):
 				toRemove.append(od)
-				print "REmoving: "+od
 			else:
 				od.removeInvalidConnections()
 		for od in toRemove:			

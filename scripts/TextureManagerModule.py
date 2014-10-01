@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 import os
+import shutil
 import hashlib
 
 def hashfile(afile, hasher, blocksize=65536):
@@ -39,6 +40,12 @@ class TextureData:
 	def filePath(self):
 		return self._filePath
 
+	def moveTo(self, directory):
+		fileName = os.path.basename(os.path.realpath(self.filePath))
+		destination = directory+"/"+fileName
+		shutil.move(self.filePath, destination)
+		self._filePath = destination
+		cmds.setAttr(self.name+'.fileTextureName', self._filePath, type="string")
 		
 class TextureManager:
 	def __init__(self):
@@ -104,3 +111,8 @@ class TextureManager:
 
 		# We need to update the list of duplicates
 		self.calculateDuplicates()
+		
+	def moveTextures(self, directory):
+		for td in self._textureData:
+			td.moveTo(directory)
+

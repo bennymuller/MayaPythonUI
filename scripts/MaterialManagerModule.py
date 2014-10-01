@@ -41,6 +41,7 @@ class MaterialTextureConnection:
 			cmds.disconnectAttr(self._textureData.name+"."+self._textureAttribute,self._materialAttribute) 		
 			cmds.connectAttr(newTexture.name+"."+self._textureAttribute,self._materialAttribute, f=True)
 			self.copyConnections(newTexture)
+			self._textureData = newTexture
 
 def getConnectedAttribute(attribute, isSource):
 	if isSource:

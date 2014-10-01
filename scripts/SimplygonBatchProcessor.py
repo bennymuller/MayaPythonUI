@@ -20,7 +20,7 @@ __maintainer__ = "Samuel Rantaeskola"
 __email__ = "samuel@simplygon.com"
 __status__ = "Prototype"
 
-SETTINGS_FILE_SETTING = "SimplygonSettingsFileXML9dsa"
+SETTINGS_FILE_SETTING = "SimplygonSettingsFileXML"
 TEMP_SETTING_FILE = "__temp_processing.ini"
 SIMPLYGON_LOGO = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/simplygon_logo.png" #Replace this line to point out your logo
 
@@ -280,6 +280,8 @@ class BrowsingPanel:
 		cmds.textField(self._settingsDirCtrl, edit=True, en=enabled)
 		cmds.button(self._browseButton, edit=True, en=enabled)
 
+TEXTURE_DESTINATION_SETTING="SimplygonTextureDestination"		
+JOB_AUTO_CLEAN="SimplygonJobAutoClean"		
 class JobPanel:
 	def __init__(self, batchProcessor):
 		self._batchProcessor = batchProcessor
@@ -287,14 +289,44 @@ class JobPanel:
 				
 	def createPanel(self, parentContainer):
 		layout = cmds.frameLayout(parent= parentContainer, l="Jobs", collapsable=False)
+		autoClean = False
+		if cmds.optionVar(exists= JOB_AUTO_CLEAN):
+			print cmds.optionVar(q=JOB_AUTO_CLEAN)
+			autoClean = cmds.optionVar(q=JOB_AUTO_CLEAN) == "True"
+		self._autoCleanUp = cmds.checkBox(l="Auto Clean Up Jobs", value=autoClean, w=150, parent= layout, onc=self.onAutoClean, ofc=self.onAutoClean)
+
+		browseLayout = cmds.rowLayout (parent= layout, numberOfColumns = 3)
+		# Fetch the texture destination folder from the environment.
+		textureDestination = ""		
+		if cmds.optionVar(exists= TEXTURE_DESTINATION_SETTING):
+			textureDestination = cmds.optionVar(q=TEXTURE_DESTINATION_SETTING)
+		
+		cmds.text(parent= browseLayout, label = "Texture destination:")		
+		self._textureDestinationDir = cmds.textField(parent= browseLayout, ed=False, w=400, text=textureDestination)
+		cmds.button(parent= browseLayout, label = "Browse", command = self.onBrowse)		
 		cmds.button(parent= layout, label = "Manage Output", command = self.onManageOutput)	
 	
 	def addJob(self, job):
 		self._jobs.append(job)
+		if cmds.checkBox(self._autoCleanUp, query = True, value=True):
+			job.pruneTexturesAndMaterials()
+			job.makeLayers()
+			directory = cmds.textField(self._textureDestinationDir, query=True, text=True)
+			job.moveTextures(directory)		
 		
 	def onManageOutput(self, job):
 		window = ManageOutputWindow(self._jobs)
 		window.showWindow()
+	"""
+	"""	
+	def onBrowse(self, _):
+		textureDestination = cmds.fileDialog2(fm=3, okc="Set")[0]
+		if textureDestination != None:
+			cmds.textField(self._textureDestinationDir, edit=True, text=textureDestination)
+			cmds.optionVar( sv=(TEXTURE_DESTINATION_SETTING, textureDestination) )
+
+	def onAutoClean(self, _):
+		cmds.optionVar( sv=(JOB_AUTO_CLEAN, cmds.checkBox(self._autoCleanUp, query = True, value=True)))
 		
 	"""
 	Enable/disable the controls in the window

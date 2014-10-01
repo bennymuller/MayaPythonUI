@@ -19,22 +19,21 @@ class ManageOutputWindow:
 
 	def createLODListPanel(self, parentContainer):
 		scrollLayout = cmds.scrollLayout(parent= parentContainer, childResizable = True, horizontalScrollBarThickness=16, verticalScrollBarThickness=16)
-		self._lodAssetContainer = cmds.columnLayout(parent=scrollLayout, adjustableColumn=True)
-		self.showLODAssets([])
+		self._lodAssetContainer = cmds.columnLayout(parent=scrollLayout, adjustableColumn=True, h=800)
 
 	def createActionPanel(self, parentContainer):
 		layout = cmds.columnLayout(parent= parentContainer, adjustableColumn=True)
 		cmds.button(parent= layout, label = "Clean job", command = self.onCleanJob)	
 		cmds.button(parent= layout, label = "Split LODs", command = self.onSplit)	
 		cmds.button(parent= layout, label = "Make Layers", command = self.onLayers)	
-		cmds.button(parent= layout, label = "MoveTextures", command = self.onMoveTextures)	
+		cmds.button(parent= layout, label = "Move Textures", command = self.onMoveTextures)	
 		
 	def showWindow(self):
 		self.updateJobList()
 		if cmds.window(MO_WINDOW_NAME, exists=True):
 			cmds.deleteUI(MO_WINDOW_NAME)
 
-		window = cmds.window(MO_WINDOW_NAME, title="Manage Output", iconName="DL", w=800, h=400)
+		window = cmds.window(MO_WINDOW_NAME, title="Manage Output", iconName="DL", w=800, h=800)
 		mainLayout = cmds.columnLayout(parent= window, adjustableColumn=True)
 		self.createJobSelector(mainLayout)
  
@@ -61,9 +60,9 @@ class ManageOutputWindow:
 		for lod in lods:
 			layout = cmds.frameLayout(parent= self._currentContainer, l="LOD"+str(lod), collapsable=True, font = "boldLabelFont")
 			listPanel = cmds.rowLayout(parent= layout, numberOfColumns=3, adjustableColumn1=True, adjustableColumn2=True, adjustableColumn3=True)
-			self.addObjects(cmds.textScrollList(parent= listPanel), lods[lod].objectNames)
-			self.addObjects(cmds.textScrollList(parent= listPanel), lods[lod].materialNames)
-			self.addObjects(cmds.textScrollList(parent= listPanel), lods[lod].textureNames)
+			self.addObjects(cmds.textScrollList(parent= listPanel), set(lods[lod].objectNames))
+			self.addObjects(cmds.textScrollList(parent= listPanel), set(lods[lod].materialNames))
+			self.addObjects(cmds.textScrollList(parent= listPanel), set(lods[lod].textureNames))
 
 		
 	def getSelectedJob(self):
@@ -107,6 +106,9 @@ class ManageOutputWindow:
 	def onMoveTextures(self, _):
 		self.updateJobList()
 		job = self.getSelectedJob()
+		directory = cmds.fileDialog2(fm=3, okc="Move To")[0]
+		job.moveTextures(directory)
+
 		
 	def updateJobList(self):
 		toRemove = []
