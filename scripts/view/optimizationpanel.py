@@ -120,7 +120,7 @@ class OptimizationPanel(SimplygonPanel):
 
 		if self._settingsManager != None:
 			self._settingsManager.settingChanged(self.getMObj(CTRL_OPTCONTAINTER), selectedSettingID)
-		self._batchProcessor.settingChanged()
+		self._batchProcessor.refreshViews()
 
 	"""
 	Refreshes the settings drop list based of the current settings in the settings manager.

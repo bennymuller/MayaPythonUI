@@ -118,31 +118,19 @@ class SimplygonBatchProcessor:
 			job.makeLayers()
 			job.moveTextures(self._jobPanel.textureDir)		
 
-	def settingChanged(self):
-		self.enable(somethingSelected())
 
 	"""
-	Enable/disable the controls in the window
-	@param enabled: true if the controls should be enabled.
+	Refreshes the content in all views.
+	@param enabled: true if items should be enabled.
 	"""	
-	def enable(self, enabled):
-		self._optimizationPanel.enable(enabled)
-
-	"""
-	Pipes the update on to the optimization panel
-	"""	
-	def updateColorSets(self):
+	def refreshViews(self):
 		self._optimizationPanel.updateColorSets()		
-
-	#START UI BUILDING
-
-	"""
-	Creates the job panel
-	@param parentContainer: the container to add the panel to
-	"""		
-	def createJobPanel(self, parentContainer):
-		layout = cmds.frameLayout(parent= parentContainer, l="Jobs", collapsable=True)
-	
+		enable = True
+		selection = cmds.ls(sl=1)
+		if selection == None or selection==[]:
+			enable = False
+		self._optimizationPanel.enable(enable)
+		
 	"""
 	Creates the main window
 	@param parentContainer: the container to add the panel to
@@ -154,25 +142,6 @@ class SimplygonBatchProcessor:
 		self._optimizationPanel.setSettingsManager(self._settingsManager)
 		if self._settingsManager == None:
 			self.enable(False)				
-			
-	"""
-	Called when something is selected in the main viewport. Forces an update of the color selector and enabling/disabling controls
-	"""	
-	def selectionChanged(self):
-		print "selction changed"
-		self.updateColorSets()
-		self.enable(somethingSelected())
-
-
-"""
-@return: true if something is currently selected.
-"""	
-def somethingSelected():
-	selection = cmds.ls(sl=1)
-	if selection == None or selection==[]:
-		return False 
-	else:
-		return True		
 
 WINDOW_NAME = "SimplygonBatchProcessor"
 DOCK_NAME = WINDOW_NAME+"Dock"
@@ -203,4 +172,4 @@ def openSimplygonBatchProcessor():
 	cmds.image(parent = layout, image=SIMPLYGON_LOGO, w=300)
 	batchProcessor = createContent(layout)
 	# Start a script job that listens to selection changed events.
-	cmds.scriptJob( event= ["SelectionChanged",batchProcessor.selectionChanged], protected=True, parent = dock)
+	cmds.scriptJob( event= ["SelectionChanged",batchProcessor.refreshViews], protected=True, parent = dock)
