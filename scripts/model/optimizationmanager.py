@@ -2,9 +2,9 @@ import ConfigParser
 import maya.cmds as cmds
 import inspect, os
 import xml.etree.ElementTree as etree
-import KeyModifierModule
-reload(KeyModifierModule)
-from KeyModifierModule import *
+import view.keymodifier
+reload(view.keymodifier)
+from view.keymodifier import *
 
 """
 Class that contains data about a section in the settings XML. It can also generate for the interface. 

@@ -1,10 +1,10 @@
 import maya.cmds as cmds
-import SimplygonPanelModule
-reload(SimplygonPanelModule)
-from SimplygonPanelModule import SimplygonPanel
-import ManageOutputWindowModule
-reload(ManageOutputWindowModule)
-from ManageOutputWindowModule import *
+import simplygonpanel
+reload(simplygonpanel)
+from simplygonpanel import SimplygonPanel
+import manageoutputwindow
+reload(manageoutputwindow)
+from manageoutputwindow import *
 
 CTRL_AUTOCLEANUP = "AutoCleanUp"
 CTRL_TEXTUREDEST = "TextureDestination"
@@ -19,7 +19,6 @@ Wrapper for the job management panel.
 class JobPanel(SimplygonPanel):
 	def __init__(self, batchProcessor):
 		SimplygonPanel.__init__(self, "Jobs", batchProcessor)
-		self._jobs = []
 		self.defineControl(CTRL_AUTOCLEANUP, "CheckBox")
 		self.defineControl(CTRL_TEXTUREDEST, "TextField")		
 		self.defineControl(CTRL_MANAGEOUTPUT, "Button")		
@@ -49,22 +48,24 @@ class JobPanel(SimplygonPanel):
 		self.setMObj(CTRL_MANAGEOUTPUT, cmds.button(parent= layout, label = "Manage Output", command = self.onManageOutput))
 	
 	"""
-	Adds a job to the list of jobs being managed.
-	@param job: the job to add
+	Returns true if the user has selected to auto clean the job
 	"""
-	def addJob(self, job):
-		self._jobs.append(job)
-		if cmds.checkBox(self.getMObj(CTRL_AUTOCLEANUP), query = True, value=True):
-			job.pruneTexturesAndMaterials()
-			job.makeLayers()
-			directory = cmds.textField(self.getMObj(CTRL_TEXTUREDEST), query=True, text=True)
-			job.moveTextures(directory)		
+	@property
+	def autoClean(self):
+		return cmds.checkBox(self.getMObj(CTRL_AUTOCLEANUP), query = True, value=True)
+
+	"""
+	Returns the texture directory
+	"""
+	@property
+	def textureDir(self):
+		return cmds.textField(self.getMObj(CTRL_TEXTUREDEST), query=True, text=True)
 	
 	"""
 	Shows a window that allows the user to manage the list of jobs.
 	"""
 	def onManageOutput(self, _):
-		window = ManageOutputWindow(self._jobs)
+		window = ManageOutputWindow(self._batchProcessor)
 		window.showWindow()
 	
 	"""

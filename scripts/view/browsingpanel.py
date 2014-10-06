@@ -1,7 +1,7 @@
 import maya.cmds as cmds
-import SimplygonPanelModule
-reload(SimplygonPanelModule)
-from SimplygonPanelModule import SimplygonPanel
+import simplygonpanel
+reload(simplygonpanel)
+from simplygonpanel import SimplygonPanel
 
 CTRL_SETTINGSDIR = "SettingsDir"
 CTRL_BROWSEBUTTON = "OptButton"
@@ -20,8 +20,9 @@ class BrowsingPanel(SimplygonPanel):
 	"""	
 	def onBrowse(self, _):
 		settingsXML = cmds.fileDialog2(fm=1, fileFilter="XML Files (*.xml)", okc="Set")[0]
-		cmds.textField(self.getMObj(CTRL_SETTINGSDIR), edit=True, text=self._batchProcessor.settingsXML)
-		self._batchProcessor.settingsXML = settingsXML		
+		if settingsXML != None:
+			cmds.textField(self.getMObj(CTRL_SETTINGSDIR), edit=True, text=self._batchProcessor.settingsXML)
+			self._batchProcessor.settingsXML = settingsXML		
 
 	"""
 	Creates the panel containing the browsing component for the setting file xml and adds it to the main layout.

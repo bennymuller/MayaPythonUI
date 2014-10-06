@@ -1,10 +1,10 @@
 import maya.cmds as cmds
-import SimplygonPanelModule
-reload(SimplygonPanelModule)
-from SimplygonPanelModule import SimplygonPanel
-import UserWeightPanelModule
-reload(UserWeightPanelModule)
-from UserWeightPanelModule import UserWeightsPanel
+import simplygonpanel
+reload(simplygonpanel)
+from simplygonpanel import SimplygonPanel
+import userweightpanel
+reload(userweightpanel)
+from userweightpanel import UserWeightsPanel
 
 CTRL_OPTCONTAINTER = "OptContainer"
 CTRL_OPTBUTTON = "OptButton"

@@ -1,7 +1,7 @@
 import maya.cmds as cmds
-import SimplygonPanelModule
-reload(SimplygonPanelModule)
-from SimplygonPanelModule import SimplygonPanel
+import simplygonpanel
+reload(simplygonpanel)
+from simplygonpanel import SimplygonPanel
 
 CTRL_USERWEIGHTS = "UseUserWeigths"
 CTRL_COLORSETS = "ColorSets"

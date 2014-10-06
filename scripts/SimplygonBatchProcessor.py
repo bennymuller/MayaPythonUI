@@ -1,20 +1,25 @@
+import maya.mel as mel
 import maya.cmds as cmds
 import inspect, os
-import OptimizationManagerModule
-reload(OptimizationManagerModule)
-from OptimizationManagerModule import *
-import SimplygonProcessingModule
-reload(SimplygonProcessingModule)
-from SimplygonProcessingModule import *
-import OptimizationPanelModule
-reload(OptimizationPanelModule)
-from OptimizationPanelModule import OptimizationPanel
-import BrowsingPanelModule
-reload(BrowsingPanelModule)
-from BrowsingPanelModule import BrowsingPanel
-import JobPanelModule
-reload(JobPanelModule)
-from JobPanelModule import JobPanel
+
+import model.optimizationmanager
+reload(model.optimizationmanager)
+from model.optimizationmanager import *
+import data.simplygonjob
+reload (data.simplygonjob)
+from data.simplygonjob import *
+import data.processdirectives
+reload (data.processdirectives)
+from data.processdirectives import *	
+import view.optimizationpanel
+reload(view.optimizationpanel)
+from view.optimizationpanel import OptimizationPanel
+import view.browsingpanel
+reload(view.browsingpanel)
+from view.browsingpanel import BrowsingPanel
+import view.jobpanel
+reload(view.jobpanel)
+from view.jobpanel import JobPanel
 
 
 __author__ = "Samuel Rantaeskola"
@@ -35,12 +40,12 @@ The main class for the Simplygon Batch processor. Handles a dock window and sett
 """		
 class SimplygonBatchProcessor:
 	def __init__(self):		
-		self.simplygonProcessor = SimplygonProcessor()
 		self._browsingPanel = BrowsingPanel(self)
 		self._jobPanel = JobPanel(self)
 		self._optimizationPanel = OptimizationPanel(self)
 		self._settingsManager = None
 		self._settingsXML = ""
+		self._jobs = []
 		# Fetch the settings file folder from the environment.
 		if cmds.optionVar(exists= SETTINGS_FILE_SETTING):
 			self._settingsXML = cmds.optionVar(q=SETTINGS_FILE_SETTING)
@@ -63,6 +68,10 @@ class SimplygonBatchProcessor:
 		self._settingsManager = OptimizationSettingsManager(self._settingsXML)
 		self._optimizationPanel.setSettingsManager(self._settingsManager)
 
+	@property
+	def jobs(self):
+		return self._jobs
+	
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	END PROPERTIES
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -86,12 +95,29 @@ class SimplygonBatchProcessor:
 		directives.useWeights = self._optimizationPanel.useUserWeights
 		directives.colorSet = self._optimizationPanel.colorSet
 		directives.weightMultiplier = self._optimizationPanel.weightMultiplier
-		job = self.simplygonProcessor.process(directives)
-		self._jobPanel.addJob(job)
+		melCmd = "Simplygon -sf \""+directives.settingFile+"\" "
+		if directives.batchMode:
+			melCmd += "-b "
+		#Check if the user weights are enabled, in that case send that along to Simplygon.
+		if directives.useWeights:
+			if directives.colorSet != None:
+				melCmd += "-caw \""+directives.colorSet+"\" -wm "+ str(directives.weightMultiplier)
+
+		job = SimplygonJob()
+		job.directives = directives
+		job.start()
+		result = mel.eval(melCmd)
+		job.end()
+		# Need to capture failure
+		job.succesful = True
+		self._jobs.append(job)
 		#Remove the temporary processing file
 		os.remove(tempFile)
-		
-	
+		if self._jobPanel.autoClean:
+			job.pruneTexturesAndMaterials()
+			job.makeLayers()
+			job.moveTextures(self._jobPanel.textureDir)		
+
 	def settingChanged(self):
 		self.enable(somethingSelected())
 

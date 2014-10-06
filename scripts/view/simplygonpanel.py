@@ -67,7 +67,7 @@ class SimplygonPanel:
 	"""
 	def defineControl(self, name, type):
 		if name in self._controls:
-			print "Error: The control "+name+" has already been defined in the panel "+self.name
+			raise NameError("Error: The control "+name+" has already been defined in the panel "+self.name)
 		self._controls[name] = SimplygonControl(name, type)
 		
 	"""
