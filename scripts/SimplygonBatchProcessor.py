@@ -1,4 +1,3 @@
-import maya.mel as mel
 import maya.cmds as cmds
 import inspect, os
 
@@ -59,8 +58,11 @@ class SimplygonBatchProcessor:
 	def settingsXML(self):
 		return self._settingsXML
 
-	@settingsXML.setter			
-	def settingsXML(self, settingsXML):
+	"""
+	Sets the new settings XML file.
+	@param settingsXML: the path to the file containing the setting file information
+	"""
+	def setSettingsXML(self, settingsXML):
 		self._settingsXML = settingsXML
 		cmds.optionVar( sv=(SETTINGS_FILE_SETTING, self._settingsXML) )
 		if self._settingsManager != None:
@@ -95,21 +97,8 @@ class SimplygonBatchProcessor:
 		directives.useWeights = self._optimizationPanel.useUserWeights
 		directives.colorSet = self._optimizationPanel.colorSet
 		directives.weightMultiplier = self._optimizationPanel.weightMultiplier
-		melCmd = "Simplygon -sf \""+directives.settingFile+"\" "
-		if directives.batchMode:
-			melCmd += "-b "
-		#Check if the user weights are enabled, in that case send that along to Simplygon.
-		if directives.useWeights:
-			if directives.colorSet != None:
-				melCmd += "-caw \""+directives.colorSet+"\" -wm "+ str(directives.weightMultiplier)
-
 		job = SimplygonJob()
-		job.directives = directives
-		job.start()
-		result = mel.eval(melCmd)
-		job.end()
-		# Need to capture failure
-		job.succesful = True
+		job.runJob(directives)
 		self._jobs.append(job)
 		#Remove the temporary processing file
 		os.remove(tempFile)

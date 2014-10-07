@@ -19,10 +19,11 @@ class BrowsingPanel(SimplygonPanel):
 	Opens up a browser window that allows the user to specify where you can find the XML that describes the setting files to use
 	"""	
 	def onBrowse(self, _):
-		settingsXML = cmds.fileDialog2(fm=1, fileFilter="XML Files (*.xml)", okc="Set")[0]
-		if settingsXML != None:
-			cmds.textField(self.getMObj(CTRL_SETTINGSDIR), edit=True, text=self._batchProcessor.settingsXML)
-			self._batchProcessor.settingsXML = settingsXML		
+		selectedSettings = cmds.fileDialog2(fm=1, fileFilter="XML Files (*.xml)", okc="Set")
+		if selectedSettings != None:
+			cmds.textField(self.getMObj(CTRL_SETTINGSDIR), edit=True, text=selectedSettings[0])
+			self._batchProcessor.setSettingsXML(selectedSettings[0])		
+			print self._batchProcessor.settingsXML
 
 	"""
 	Creates the panel containing the browsing component for the setting file xml and adds it to the main layout.
