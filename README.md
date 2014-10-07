@@ -65,6 +65,26 @@ Here are the steps on how to do that in Maya:
 
 ![Alt text](images/optimizedsphere.png?raw=true "Optimized sphere")
 
+##Job cleaning
+The job management section of the script allows you to move textures, clean out duplicates, create layers and break apart LODs. If this is all you're interested in you can just use the data folder of the scripts. Starting process by calling runJob on SimplygonJob. This will create data structures for all the textures, materials and objects that was created during job and also give you some actions you can apply to them.
+Here is a small sample script that utilizes that functionality:
+```
+import sys
+sys.path.append( 'c:/Work/GitHub/MayaPythonUI/scripts/data' )
+from simplygonjob import SimplygonJob
+from processdirectives import ProcessDirectives
+
+job = SimplygonJob()
+directives = ProcessDirectives()
+directives.settingFile = "c:/Work/GitHub/MayaPythonUI/settings/Character 3 LODs.ini" 
+directives.batchMode = True
+directives.useWeights = False
+job.runJob(directives)
+#Clean out any duplicates
+job.pruneTexturesAndMaterials()
+```
+
+
 
 ##Instructions to create your own settings and XML
 After you have created a number of presets (.ini files) through the Simplygon interface you need to create an XML file to wrap the setting files. An example can be viewed in the Settings folder of the repository.
