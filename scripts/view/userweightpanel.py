@@ -72,7 +72,7 @@ class UserWeightsPanel(SimplygonPanel):
 				cmds.deleteUI(menuItems)
 		except:
 			pass
-		colorSets = cmds.polyColorSet( query=True, allColorSets=True)
+		colorSets = list(set(cmds.polyColorSet( query=True, allColorSets=True)))
 		if colorSets :
 			for c in colorSets:
 				cmds.menuItem(parent=csSelector, label=c)
